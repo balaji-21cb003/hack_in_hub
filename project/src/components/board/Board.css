@@ -1,0 +1,19 @@
+.game{
+  position: relative;
+  margin-top: 40%;
+  justify-content: center;
+  /* display: flex; */
+  align-items: center;
+  
+
+}
+.board {
+  display: grid;
+  grid-template-columns: repeat(4,var(--size));
+  grid-template-rows: repeat(4,var(--size));
+  border-radius: 10px;
+  position: relative;
+
+  overflow: hidden;
+  border: 10px solid black;
+}

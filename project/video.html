@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Emotion Detection</title>
+  </head>
+  <body>
+    <h1>Emotion Detection</h1>
+    <video id="webcam" autoplay playsinline width="640" height="480"></video>
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script>
+      async function setupCamera() {
+        const video = document.getElementById("webcam");
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+        video.srcObject = stream;
+
+        return new Promise((resolve) => {
+          video.onloadedmetadata = () => {
+            resolve(video);
+          };
+        });
+      }
+
+      async function loadModel() {
+        const model = await tf.loadGraphModel(
+          "path_to_converted_model/model.json"
+        );
+        return model;
+      }
+
+      async function predictEmotion(video, model) {
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = video.width;
+        canvas.height = video.height;
+
+        while (true) {
+          ctx.drawImage(video, 0, 0, video.width, video.height);
+          const imgData = tf.browser.fromPixels(canvas);
+          const img = tf.image.resizeBilinear(imgData, [48, 48]);
+          const input = tf.cast(img.expandDims(0), "float32").div(255.0);
+          const predictions = model.predict(input);
+          const emotions = [
+            "angry",
+            "disgust",
+            "fear",
+            "happy",
+            "sad",
+            "surprise",
+            "neutral",
+          ];
+
+          // Process and display predictions as needed
+
+          await tf.nextFrame();
+        }
+      }
+
+      async function run() {
+        const video = await setupCamera();
+        const model = await loadModel();
+        predictEmotion(video, model);
+      }
+
+      run();
+    </script>
+  </body>
+</html>
